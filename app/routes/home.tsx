@@ -11,6 +11,14 @@ import {
 import { Input } from "~/components/ui/input";
 import { Progress } from "~/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Label } from "~/components/ui/label";
 import { apiFetch, ApiError } from "~/lib/api";
 
 // Define the shape of our job result data
@@ -29,12 +37,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [targetLanguage, setTargetLanguage] = useState<string>("");
 
   // Refs for form inputs
   const imageUrlRef = useRef<HTMLInputElement>(null);
-  const targetLangUrlRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const targetLangFileRef = useRef<HTMLInputElement>(null);
 
   // Polling effect
   useEffect(() => {
@@ -78,6 +85,10 @@ export default function Home() {
     setIsLoading(false);
     setError(null);
     setProgress(0);
+    setTargetLanguage("");
+
+    if (imageUrlRef.current) imageUrlRef.current.value = "";
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   const handleSubmitUrl = async (e: React.FormEvent) => {
@@ -91,7 +102,7 @@ export default function Home() {
         method: "POST",
         body: JSON.stringify({
           imageUrl: imageUrlRef.current?.value,
-          targetLanguage: targetLangUrlRef.current?.value,
+          targetLanguage: targetLanguage,
         }),
       });
       setJobId(data.digitizationId);
@@ -120,7 +131,7 @@ export default function Home() {
 
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("targetLanguage", targetLangFileRef.current?.value || "");
+    formData.append("targetLanguage", targetLanguage || "");
 
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -183,13 +194,25 @@ export default function Home() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="field-element">
-                    <Input
-                      id="targetLanguageUrl"
-                      placeholder="Target Language (e.g., es, fr, de)"
-                      ref={targetLangUrlRef}
+                  <div className="field-element space-y-2">
+                    <Label htmlFor="targetLanguageUrl">Target Language</Label>
+                    <Select
+                      onValueChange={setTargetLanguage}
+                      defaultValue=""
                       disabled={isLoading}
-                    />
+                    >
+                      <SelectTrigger id="targetLanguageUrl" className="w-full">
+                        <SelectValue placeholder="Select Language (Optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Spanish</SelectItem>
+                        <SelectItem value="fr">French</SelectItem>
+                        <SelectItem value="de">German</SelectItem>
+                        <SelectItem value="kn">Kannada</SelectItem>
+                        <SelectItem value="te">Telugu</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <Button className="w-full" type="submit" disabled={isLoading}>
                     Digitize from URL
@@ -207,13 +230,25 @@ export default function Home() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="field-element">
-                    <Input
-                      id="targetLanguageFile"
-                      placeholder="Target Language (e.g., es, fr, de)"
-                      ref={targetLangFileRef}
+                  <div className="field-element space-y-2">
+                    <Label htmlFor="targetLanguageFile">Target Language</Label>
+                    <Select
+                      onValueChange={setTargetLanguage}
+                      defaultValue=""
                       disabled={isLoading}
-                    />
+                    >
+                      <SelectTrigger id="targetLanguageFile" className="w-full">
+                        <SelectValue placeholder="Select Language (Optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Spanish</SelectItem>
+                        <SelectItem value="fr">French</SelectItem>
+                        <SelectItem value="de">German</SelectItem>
+                        <SelectItem value="kn">Kannada</SelectItem>
+                        <SelectItem value="te">Telugu</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <Button className="w-full" type="submit" disabled={isLoading}>
                     Digitize from File
