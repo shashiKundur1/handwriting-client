@@ -22,7 +22,10 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
       - name: Build and push Docker image
-        run: heroku container:push web --app ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          heroku container:push web \
+            --app ${{ secrets.HEROKU_APP_NAME }} \
+            --arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 

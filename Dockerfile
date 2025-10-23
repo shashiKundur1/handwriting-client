@@ -3,6 +3,10 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Declare a build-time argument
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Copy package files and install all dependencies
 COPY package*.json ./
 RUN npm ci
