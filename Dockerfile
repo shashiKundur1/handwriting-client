@@ -1,22 +1,37 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
+# Stage 1: Build the application
+# This stage installs all dependencies (including dev) and runs the build
+FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Copy package files and install all dependencies
+COPY package*.json ./
 RUN npm ci
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
-WORKDIR /app
-RUN npm ci --omit=dev
+# Copy the rest of your source code
+COPY . .
 
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
+# Run the new, correct build script
 RUN npm run build
 
+# ---
+
+# Stage 2: Production
+# This stage starts fresh and only installs production dependencies
 FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
 WORKDIR /app
+
+# Set the environment to production
+ENV NODE_ENV=production
+
+# Copy package files and install *only* production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy the build artifacts from the "builder" stage
+COPY --from=builder /app/build ./build
+
+# Expose the port Heroku will assign
+EXPOSE $PORT
+
+# Run the new, correct start command
 CMD ["npm", "run", "start"]
