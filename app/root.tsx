@@ -8,7 +8,7 @@ import {
   useRouteError,
 } from "react-router";
 
-import "./tailwind.css";
+import "./app.css";
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
